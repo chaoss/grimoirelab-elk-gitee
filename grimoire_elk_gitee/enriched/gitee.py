@@ -441,6 +441,11 @@ class GiteeEnrich(Enrich):
             rich_issue['time_to_first_attention'] = \
                 get_time_diff_days(str_to_datetime(issue['created_at']),
                                    self.get_time_to_first_attention(issue))
+            rich_issue['num_of_comments_without_bot'] = \
+                                   self.get_num_of_comments_without_bot(issue)
+            rich_issue['time_to_first_attention_without_bot'] = \
+                get_time_diff_days(str_to_datetime(issue['created_at']),
+                                    self.get_time_to_first_attention_without_bot(issue))
 
         rich_issue.update(self.get_grimoire_fields(issue['created_at'], "issue"))
 
