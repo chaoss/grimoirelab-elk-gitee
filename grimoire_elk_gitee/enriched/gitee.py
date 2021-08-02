@@ -415,6 +415,7 @@ class GiteeEnrich(Enrich):
         rich_issue['updated_at'] = issue['updated_at']
         rich_issue['closed_at'] = issue['finished_at']
         rich_issue['url'] = issue['html_url']
+        rich_issue['issue_type'] = issue['issue_type']
         labels = []
         [labels.append(label['name']) for label in issue['labels'] if 'labels' in issue]
         rich_issue['labels'] = labels
