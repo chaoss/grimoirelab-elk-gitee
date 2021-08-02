@@ -166,6 +166,15 @@ class GiteeEnrich(Enrich):
         if comment_dates:
             return min(comment_dates)
         return None
+    #get comments and exclude bot  
+    def get_num_of_comments_without_bot(self, item):
+        """Get the num of comment was made to the issue by someone
+        other than the user who created the issue and bot
+        """
+        comments = [comment for comment in item['comments_data']
+                         if item['user']['login'] != comment['user']['login'] \
+                             and not (comment['user']['name'].endswith("-bot"))]
+        return len(comments)
 
     def get_time_to_merge_request_response(self, item):
         """Get the first date at which a review was made on the PR by someone
