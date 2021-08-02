@@ -259,8 +259,9 @@ class GiteeEnrich(Enrich):
         else:
            rich_pr['time_to_close_days'] = \
                 get_time_diff_days(pull_request['created_at'], pull_request['closed_at'])
-
-        if pull_request['state'] != 'merged':
+        
+        #merged is not equal to closed in gitee
+        if pull_request['state'] == 'open':
             rich_pr['time_open_days'] = \
                 get_time_diff_days(pull_request['created_at'], datetime_utcnow().replace(tzinfo=None))
         else:
