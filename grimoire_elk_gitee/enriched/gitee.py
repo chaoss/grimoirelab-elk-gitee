@@ -175,6 +175,18 @@ class GiteeEnrich(Enrich):
                          if item['user']['login'] != comment['user']['login'] \
                              and not (comment['user']['name'].endswith("-bot"))]
         return len(comments)
+      
+    #get first attendtion without bot
+    def get_time_to_first_attention_without_bot(self, item):
+        """Get the first date at which a comment was made to the issue by someone
+        other than the user who created the issue and bot
+        """
+        comment_dates = [str_to_datetime(comment['created_at']) for comment in item['comments_data']
+                         if item['user']['login'] != comment['user']['login'] \
+                             and not (comment['user']['name'].endswith("-bot"))]
+        if comment_dates:
+            return min(comment_dates)
+        return None
 
     def get_time_to_merge_request_response(self, item):
         """Get the first date at which a review was made on the PR by someone
