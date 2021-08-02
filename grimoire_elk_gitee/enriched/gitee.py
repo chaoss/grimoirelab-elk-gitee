@@ -252,8 +252,13 @@ class GiteeEnrich(Enrich):
         # The real data
         pull_request = item['data']
 
-        rich_pr['time_to_close_days'] = \
-            get_time_diff_days(pull_request['created_at'], pull_request['closed_at'])
+        #close and merge in gitee are two different status
+        if pull_request['state'] == 'merged':
+            rich_pr['time_to_close_days'] = \
+                get_time_diff_days(pull_request['created_at'], pull_request['merged_at'])
+        else:
+           rich_pr['time_to_close_days'] = \
+                get_time_diff_days(pull_request['created_at'], pull_request['closed_at'])
 
         if pull_request['state'] != 'merged':
             rich_pr['time_open_days'] = \
