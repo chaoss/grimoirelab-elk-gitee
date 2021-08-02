@@ -363,7 +363,8 @@ class GiteeEnrich(Enrich):
         rich_issue['time_to_close_days'] = \
             get_time_diff_days(issue['created_at'], issue['finished_at'])
 
-        if issue['state'] != 'closed':
+        #issue have four status: open,progressing, closed, rejected.
+        if issue['state'] == 'open' or issue['state'] == 'progressing':
             rich_issue['time_open_days'] = \
                 get_time_diff_days(issue['created_at'], datetime_utcnow().replace(tzinfo=None))
         else:
