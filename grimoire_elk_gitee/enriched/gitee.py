@@ -29,6 +29,7 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
 from grimoire_elk.elastic import ElasticSearch
+from grimoire_elk.errors import ELKError
 from grimoirelab_toolkit.datetime import (datetime_utcnow,
                                           str_to_datetime)
 
