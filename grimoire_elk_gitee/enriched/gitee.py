@@ -184,7 +184,7 @@ class GiteeEnrich(Enrich):
         """
         comment_dates = [str_to_datetime(comment['created_at']) for comment in item['comments_data']
                          if item['user']['login'] != comment['user']['login'] \
-                             and not (comment['user']['name'].endswith("-bot"))]
+                             and not (comment['user']['name'].endswith("bot"))]
         if comment_dates:
             return min(comment_dates)
         return None
