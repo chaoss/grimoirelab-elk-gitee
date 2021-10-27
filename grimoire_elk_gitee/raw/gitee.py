@@ -60,6 +60,9 @@ class GiteeOcean(ElasticOcean):
 
         params = []
 
+        tokens = url.split(' ', 1)  # Just split the URL not the filter
+        url = tokens[0]
+
         owner = url.split('/')[-2]
         repository = url.split('/')[-1]
         params.append(owner)
