@@ -223,6 +223,23 @@ class GiteeEnrich(Enrich):
 
         commenters = [comment['user']['login'] for comment in item['comments_data']]
         return len(set(commenters))
+    
+    def get_CVE_message(self, item):
+        """Get the first date at which a comment was made to the issue by someone
+        other than the user who created the issue and bot
+        """
+        if "漏洞公开时间" in item["body"]:
+            issue_body = item["body"].splitlines()
+            cve_body = {}
+            for message in issue_body:
+                [key,val] = message.split(': ')
+                cve_body[key] = val
+            return cve_body
+        else:
+            return None
+    
+    
+
 
     @metadata
     def get_rich_item(self, item):
@@ -447,9 +464,31 @@ class GiteeEnrich(Enrich):
             rich_issue['time_to_first_attention_without_bot'] = \
                 get_time_diff_days(str_to_datetime(issue['created_at']),
                                     self.get_time_to_first_attention_without_bot(issue))
+        
+        cve_message = self.get_CVE_message(issue)
+        if cve_message:
+            rich_issue['cve_public_time'] = cve_message['漏洞公开时间']
+            rich_issue['cve_create_time'] = rich_issue['created_at']
+            rich_issue['cve_base_score'] = cve_message['BaseScore'].split(' ')[0]
+            rich_issue['cve_level'] = cve_message['BaseScore'].split(' ')[1]
 
+            rich_issue['cve_percerving_time'] = get_time_diff_days(str_to_datetime(issue['created_at']),
+                                   cve_message['漏洞公开时间'])
+            rich_issue['cve_handling_time'] = rich_issue['time_open_days']
+        else:
+            rich_issue['cve_public_time'] = None
+            rich_issue['cve_create_time'] = None
+            rich_issue['cve_base_score'] = None
+            rich_issue['cve_level'] = None
+            rich_issue['cve_percerving_time'] = None
+            rich_issue['cve_handling_time'] = None
+            
+
+
+            
         rich_issue.update(self.get_grimoire_fields(issue['created_at'], "issue"))
 
+        
         item[self.get_field_date()] = rich_issue[self.get_field_date()]
         rich_issue.update(self.get_item_sh(item, self.issue_roles))
 
