@@ -232,8 +232,11 @@ class GiteeEnrich(Enrich):
             issue_body = item["body"].splitlines()
             cve_body = {}
             for message in issue_body:
-                [key,val] = message.split(': ')
-                cve_body[key] = val
+                try:
+                    [key,val] = message.split('：')
+                    cve_body[key.strip()] = val.strip()
+                except Exception as e:
+                    pass
             return cve_body
         else:
             return None
@@ -471,9 +474,7 @@ class GiteeEnrich(Enrich):
             rich_issue['cve_create_time'] = rich_issue['created_at']
             rich_issue['cve_base_score'] = cve_message['BaseScore'].split(' ')[0]
             rich_issue['cve_level'] = cve_message['BaseScore'].split(' ')[1]
-
-            rich_issue['cve_percerving_time'] = get_time_diff_days(str_to_datetime(issue['created_at']),
-                                   cve_message['漏洞公开时间'])
+            rich_issue['cve_percerving_time'] = get_time_diff_days(str_to_datetime(cve_message['漏洞公开时间']),str_to_datetime(issue['created_at']))
             rich_issue['cve_handling_time'] = rich_issue['time_open_days']
         else:
             rich_issue['cve_public_time'] = None
@@ -482,7 +483,7 @@ class GiteeEnrich(Enrich):
             rich_issue['cve_level'] = None
             rich_issue['cve_percerving_time'] = None
             rich_issue['cve_handling_time'] = None
-            
+           
 
 
             
