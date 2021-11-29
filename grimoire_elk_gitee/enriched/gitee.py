@@ -474,7 +474,7 @@ class GiteeEnrich(Enrich):
             rich_issue['cve_create_time'] = rich_issue['created_at']
             rich_issue['cve_base_score'] = cve_message['BaseScore'].split(' ')[0]
             rich_issue['cve_level'] = cve_message['BaseScore'].split(' ')[1]
-            rich_issue['cve_percerving_time'] = get_time_diff_days(str_to_datetime(cve_message['漏洞公开时间']),str_to_datetime(issue['created_at']))
+            rich_issue['cve_percerving_time'] = rich_issue['time_to_first_attention_without_bot']
             rich_issue['cve_handling_time'] = rich_issue['time_open_days']
         else:
             rich_issue['cve_public_time'] = None
