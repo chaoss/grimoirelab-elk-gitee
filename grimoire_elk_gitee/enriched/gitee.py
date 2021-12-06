@@ -174,7 +174,7 @@ class GiteeEnrich(Enrich):
         """
         comments = [comment for comment in item['comments_data']
                          if item['user']['login'] != comment['user']['login'] \
-                             and not (comment['user']['name'].endswith("-bot"))]
+                             and not (comment['user']['name'].endswith("bot"))]
         return len(comments)
       
     #get first attendtion without bot
@@ -469,13 +469,21 @@ class GiteeEnrich(Enrich):
                                     self.get_time_to_first_attention_without_bot(issue))
         
         cve_message = self.get_CVE_message(issue)
-        if cve_message:
+        
+        if cve_message :
+            scores = cve_message['BaseScore'].split(' ')
             rich_issue['cve_public_time'] = cve_message['漏洞公开时间']
-            rich_issue['cve_create_time'] = rich_issue['created_at']
-            rich_issue['cve_base_score'] = cve_message['BaseScore'].split(' ')[0]
-            rich_issue['cve_level'] = cve_message['BaseScore'].split(' ')[1]
+            rich_issue['cve_create_time'] = rich_issue['created_at']          
             rich_issue['cve_percerving_time'] = rich_issue['time_to_first_attention_without_bot']
             rich_issue['cve_handling_time'] = rich_issue['time_open_days']
+            if len(scores) == 2:
+                rich_issue['cve_base_score'] = scores[0]
+                rich_issue['cve_level'] = scores[1]
+            else:
+                rich_issue['cve_base_score'] = None
+                rich_issue['cve_level'] = None
+
+               
         else:
             rich_issue['cve_public_time'] = None
             rich_issue['cve_create_time'] = None
