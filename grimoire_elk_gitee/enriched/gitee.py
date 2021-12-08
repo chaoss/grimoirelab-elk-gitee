@@ -228,7 +228,7 @@ class GiteeEnrich(Enrich):
         """Get the first date at which a comment was made to the issue by someone
         other than the user who created the issue and bot
         """
-        if "漏洞公开时间" in item["body"]:
+        if item["body"] and "漏洞公开时间" in item["body"]:
             issue_body = item["body"].splitlines()
             cve_body = {}
             for message in issue_body:
@@ -471,17 +471,20 @@ class GiteeEnrich(Enrich):
         cve_message = self.get_CVE_message(issue)
         
         if cve_message :
-            scores = cve_message['BaseScore'].split(' ')
-            rich_issue['cve_public_time'] = cve_message['漏洞公开时间']
-            rich_issue['cve_create_time'] = rich_issue['created_at']          
-            rich_issue['cve_percerving_time'] = rich_issue['time_to_first_attention_without_bot']
-            rich_issue['cve_handling_time'] = rich_issue['time_open_days']
-            if len(scores) == 2:
-                rich_issue['cve_base_score'] = scores[0]
-                rich_issue['cve_level'] = scores[1]
-            else:
-                rich_issue['cve_base_score'] = None
-                rich_issue['cve_level'] = None
+            try:
+                scores = cve_message['BaseScore'].split(' ')
+                rich_issue['cve_public_time'] = cve_message['漏洞公开时间']
+                rich_issue['cve_create_time'] = rich_issue['created_at']          
+                rich_issue['cve_percerving_time'] = rich_issue['time_to_first_attention_without_bot'] if 'time_to_first_attention_without_bot' in rich_issue else None
+                rich_issue['cve_handling_time'] = rich_issue['time_open_days']
+                if len(scores) == 2:
+                    rich_issue['cve_base_score'] = scores[0]
+                    rich_issue['cve_level'] = scores[1]
+                else:
+                    rich_issue['cve_base_score'] = None
+                    rich_issue['cve_level'] = None
+            except Exception as error:
+                logger.error("CVE messgae is not complete: %s", error)
 
                
         else:
