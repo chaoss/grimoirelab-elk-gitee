@@ -17,7 +17,9 @@
 #
 # Authors:
 #     Haiming Lin <lhming23@outlook.com>
-#
+#     Yehu Wang <yehui.wang.mdh@gmail.com>
+#     Chenqi Shan <chenqishan337@gmail.com>
+#     Fugang Xiao <xiao623@outlook.com>
 
 import codecs
 import os
@@ -39,8 +41,8 @@ setup(name="grimoire-elk-gitee",
       long_description_content_type='text/markdown',
       url="https://github.com/X-lab2017/grimoirelab-elk-gitee",
       version="0.1.0",
-      author="X-lab",
-      author_email="lhming23@outlook.com",
+      author="X-lab, HuaWei",
+      author_email="lhming23@outlook.com, yehui.wang.mdh@gmail.com, chenqishan337@gmail.com",
       license="GPLv3",
       classifiers=[
           'Development Status :: 3 - Alpha',

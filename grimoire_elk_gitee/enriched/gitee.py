@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2020 Bitergia
+# Copyright (C) 2021-2022 Haiming Lin, Yehu Wang, Chenqi Shan, Fugang Xiao
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
 #
 # Authors:
 #   Haiming Lin <lhming23@outlook.com>
-#   
+#   Yehu Wang <yehui.wang.mdh@gmail.com>
+#   Chenqi Shan <chenqishan337@gmail.com>
+#   Fugang Xiao <xiao623@outlook.com>
 
 import logging
 import re
