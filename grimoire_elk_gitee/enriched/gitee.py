@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2020 Bitergia
+# Copyright (C) 2021-2022 Haiming Lin, Yehu Wang, Chenqi Shan, Fugang Xiao
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
 #
 # Authors:
 #   Haiming Lin <lhming23@outlook.com>
-#
+#   Yehu Wang <yehui.wang.mdh@gmail.com>
+#   Chenqi Shan <chenqishan337@gmail.com>
+#   Fugang Xiao <xiao623@outlook.com>
 
 import logging
 import re
@@ -188,6 +190,15 @@ class GiteeEnrich(Enrich):
         if comment_dates:
             return min(comment_dates)
         return None
+    
+    def get_num_of_reviews_without_bot(self, item):
+        """Get the num of comment was made to the issue by someone
+        other than the user who created the issue and bot
+        """
+        comments = [comment for comment in item['review_comments_data']
+                         if item['user']['login'] != comment['user']['login'] \
+                             and not (comment['user']['name'].endswith("bot"))]
+        return len(comments) 
 
     def get_time_to_merge_request_response(self, item):
         """Get the first date at which a review was made on the PR by someone
@@ -223,23 +234,7 @@ class GiteeEnrich(Enrich):
 
         commenters = [comment['user']['login'] for comment in item['comments_data']]
         return len(set(commenters))
-    
-    def get_CVE_message(self, item):
-        """Get the first date at which a comment was made to the issue by someone
-        other than the user who created the issue and bot
-        """
-        if item["body"] and "漏洞公开时间" in item["body"]:
-            issue_body = item["body"].splitlines()
-            cve_body = {}
-            for message in issue_body:
-                try:
-                    [key,val] = message.split('：')
-                    cve_body[key.strip()] = val.strip()
-                except Exception as e:
-                    pass
-            return cve_body
-        else:
-            return None
+
     
     
 
@@ -356,6 +351,8 @@ class GiteeEnrich(Enrich):
             min_review_date = self.get_time_to_merge_request_response(pull_request)
             rich_pr['time_to_merge_request_response'] = \
                 get_time_diff_days(str_to_datetime(pull_request['created_at']), min_review_date)
+            rich_pr['num_review_comments_without_bot'] = \
+                self.get_num_of_reviews_without_bot(pull_request)
 
         if self.prjs_map:
             rich_pr.update(self.get_item_project(rich_pr))
@@ -468,36 +465,7 @@ class GiteeEnrich(Enrich):
                 get_time_diff_days(str_to_datetime(issue['created_at']),
                                     self.get_time_to_first_attention_without_bot(issue))
         
-        cve_message = self.get_CVE_message(issue)
-        
-        if cve_message :
-            try:
-                scores = cve_message['BaseScore'].split(' ')
-                rich_issue['cve_public_time'] = cve_message['漏洞公开时间']
-                rich_issue['cve_create_time'] = rich_issue['created_at']          
-                rich_issue['cve_percerving_time'] = rich_issue['time_to_first_attention_without_bot'] if 'time_to_first_attention_without_bot' in rich_issue else None
-                rich_issue['cve_handling_time'] = rich_issue['time_open_days']
-                if len(scores) == 2:
-                    rich_issue['cve_base_score'] = scores[0]
-                    rich_issue['cve_level'] = scores[1]
-                else:
-                    rich_issue['cve_base_score'] = None
-                    rich_issue['cve_level'] = None
-            except Exception as error:
-                logger.error("CVE messgae is not complete: %s", error)
-
                
-        else:
-            rich_issue['cve_public_time'] = None
-            rich_issue['cve_create_time'] = None
-            rich_issue['cve_base_score'] = None
-            rich_issue['cve_level'] = None
-            rich_issue['cve_percerving_time'] = None
-            rich_issue['cve_handling_time'] = None
-           
-
-
-            
         rich_issue.update(self.get_grimoire_fields(issue['created_at'], "issue"))
 
         
