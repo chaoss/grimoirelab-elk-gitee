@@ -17,7 +17,7 @@
 #
 # Authors:
 #     Haiming Lin <lhming23@outlook.com>
-#     Yehu Wang <yehui.wang.mdh@gmail.com>
+#     Yehui Wang <yehui.wang.mdh@gmail.com>
 #     Chenqi Shan <chenqishan337@gmail.com>
 #     Fugang Xiao <xiao623@outlook.com>
 
