@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021-2022 Haiming Lin, Yehu Wang, Chenqi Shan, Fugang Xiao
+# Copyright (C) 2021-2022 Haiming Lin, Yehui Wang, Chenqi Shan, Fugang Xiao
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 # Authors:
 #   Haiming Lin <lhming23@outlook.com>
-#   Yehu Wang <yehui.wang.mdh@gmail.com>
+#   Yehui Wang <yehui.wang.mdh@gmail.com>
 #   Chenqi Shan <chenqishan337@gmail.com>
 #   Fugang Xiao <xiao623@outlook.com>
 
@@ -353,7 +353,10 @@ class GiteeEnrich(Enrich):
                 get_time_diff_days(str_to_datetime(pull_request['created_at']), min_review_date)
             rich_pr['num_review_comments_without_bot'] = \
                 self.get_num_of_reviews_without_bot(pull_request)
-
+        
+        if 'linked_issues' in pull_request:
+            rich_pr['linked_issues_count'] = len(pull_request['linked_issues'])
+        
         if self.prjs_map:
             rich_pr.update(self.get_item_project(rich_pr))
 
