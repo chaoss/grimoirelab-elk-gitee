@@ -23,10 +23,12 @@
 from perceval.backends.gitee.gitee import Gitee, GiteeCommand
 # Connectors for EnrichOcean
 from .enriched.gitee import GiteeEnrich
+from .enriched.gitee2 import GiteeEnrich2
 # Connectors for Ocean
 from .raw.gitee import GiteeOcean
 
 
 def get_connectors():
 
-    return {"gitee": [Gitee, GiteeOcean, GiteeEnrich, GiteeCommand]}
+    return {"gitee": [Gitee, GiteeOcean, GiteeEnrich, GiteeCommand],
+            "gitee2": [Gitee, GiteeOcean, GiteeEnrich2, GiteeCommand]}
