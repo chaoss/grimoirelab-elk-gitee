@@ -221,6 +221,18 @@ class GiteeEnrich(Enrich):
 
         return None
 
+    #get first attendtion without bot
+    def get_time_to_first_review_attention_without_bot(self, item):
+        """Get the first date at which a comment was made to the pr by someone
+        other than the user who created the pr and bot
+        """
+        comment_dates = [str_to_datetime(comment['created_at']) for comment in item['review_comments_data']
+                         if item['user']['login'] != comment['user']['login'] \
+                             and not (comment['user']['name'].endswith("bot"))]
+        if comment_dates:
+            return min(comment_dates)
+        return None
+
     def get_latest_comment_date(self, item):
         """Get the date of the latest comment on the issue/pr"""
 
@@ -353,6 +365,10 @@ class GiteeEnrich(Enrich):
                 get_time_diff_days(str_to_datetime(pull_request['created_at']), min_review_date)
             rich_pr['num_review_comments_without_bot'] = \
                 self.get_num_of_reviews_without_bot(pull_request)
+            rich_pr['time_to_first_attention_without_bot'] = \
+                get_time_diff_days(str_to_datetime(pull_request['created_at']),
+                                    self.get_time_to_first_review_attention_without_bot(pull_request))
+
         
         if 'linked_issues' in pull_request:
             rich_pr['linked_issues_count'] = len(pull_request['linked_issues'])
