@@ -190,6 +190,15 @@ class GiteeEnrich(Enrich):
         if comment_dates:
             return min(comment_dates)
         return None
+    
+    def get_num_of_reviews_without_bot(self, item):
+        """Get the num of comment was made to the issue by someone
+        other than the user who created the issue and bot
+        """
+        comments = [comment for comment in item['review_comments_data']
+                         if item['user']['login'] != comment['user']['login'] \
+                             and not (comment['user']['name'].endswith("bot"))]
+        return len(comments) 
 
     def get_time_to_merge_request_response(self, item):
         """Get the first date at which a review was made on the PR by someone
@@ -210,6 +219,18 @@ class GiteeEnrich(Enrich):
         if review_dates:
             return min(review_dates)
 
+        return None
+
+    #get first attendtion without bot
+    def get_time_to_first_review_attention_without_bot(self, item):
+        """Get the first date at which a comment was made to the pr by someone
+        other than the user who created the pr and bot
+        """
+        comment_dates = [str_to_datetime(comment['created_at']) for comment in item['review_comments_data']
+                         if item['user']['login'] != comment['user']['login'] \
+                             and not (comment['user']['name'].endswith("bot"))]
+        if comment_dates:
+            return min(comment_dates)
         return None
 
     def get_latest_comment_date(self, item):
@@ -342,7 +363,16 @@ class GiteeEnrich(Enrich):
             min_review_date = self.get_time_to_merge_request_response(pull_request)
             rich_pr['time_to_merge_request_response'] = \
                 get_time_diff_days(str_to_datetime(pull_request['created_at']), min_review_date)
+            rich_pr['num_review_comments_without_bot'] = \
+                self.get_num_of_reviews_without_bot(pull_request)
+            rich_pr['time_to_first_attention_without_bot'] = \
+                get_time_diff_days(str_to_datetime(pull_request['created_at']),
+                                    self.get_time_to_first_review_attention_without_bot(pull_request))
 
+        
+        if 'linked_issues' in pull_request:
+            rich_pr['linked_issues_count'] = len(pull_request['linked_issues'])
+        
         if self.prjs_map:
             rich_pr.update(self.get_item_project(rich_pr))
 
@@ -479,6 +509,25 @@ class GiteeEnrich(Enrich):
         rich_repo['stargazers_count'] = repo['stargazers_count']
         rich_repo['fetched_on'] = repo['fetched_on']
         rich_repo['url'] = repo['html_url']
+        
+        rich_releases = []
+        for release in repo['releases'] :
+            rich_releases_dict = {}
+            rich_releases_dict['id'] = release['id']
+            rich_releases_dict['tag_name'] = release['tag_name']
+            rich_releases_dict['target_commitish'] = release['target_commitish']
+            rich_releases_dict['prerelease'] = release['prerelease']
+            rich_releases_dict['name'] = release['name']
+            rich_releases_dict['body'] = release['body']
+            rich_releases_dict['created_at'] = release['created_at']
+            release_author = release['author']
+            rich_releases_author_dict = {}
+            rich_releases_author_dict['login'] = release_author['login']
+            rich_releases_author_dict['name'] = release_author['name']
+            rich_releases_dict['author'] = rich_releases_author_dict
+            rich_releases.append(rich_releases_dict)
+        rich_repo['releases'] = rich_releases
+        rich_repo['releases_count'] = len(rich_releases)
 
         if self.prjs_map:
             rich_repo.update(self.get_item_project(rich_repo))
